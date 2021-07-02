@@ -1,8 +1,11 @@
 doctype html
 html 
     head
-        title #{pageTitle}
         link(link rel="stylesheet" href="https://unpkg.com/mvp.css")
+        title #{pageTitle}
     body 
-        block content
+        main 
+            a(href="/videos/upload") Video Upload
+            h1=pageTitle
+            block content
         include partials/footer

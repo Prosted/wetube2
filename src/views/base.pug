@@ -5,7 +5,11 @@ html
         title #{pageTitle}
     body 
         main 
-            a(href="/videos/upload") Video Upload
+            ul
+                li 
+                    a(href="/videos/upload") Video Upload
+                li
+                    a(href="/") Home 
             h1=pageTitle
             block content
         include partials/footer

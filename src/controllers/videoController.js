@@ -1,4 +1,4 @@
-import Video from "../models/Video";
+import Video, { formatHashtags } from "../models/Video";
     
 //global Router
 export const home = async(req, res) => {
@@ -7,18 +7,32 @@ export const home = async(req, res) => {
 }; 
 
 //video Router
-export const watch = (req, res) => {
+export const watch = async(req, res) => {
     const {id} = req.params;
-    res.render("watch", {pageTitle : "watch"});
+    const video = await Video.findById({_id : id});
+    if(!video)
+        return res.render("404", {pageTitle : "404 Error"});
+    res.render("watch", {pageTitle : "watch", video});
 };
-export const getEdit = (req, res) => {
+export const getEdit = async(req, res) => {
     const {id} = req.params;
-    res.render("edit", {pageTitle : "Edit"});
+    const video = await Video.findById({_id : id});
+    if(!video)
+        return res.render("404", {pageTitle : "404 Error"});
+    res.render("edit", {pageTitle : "Edit", video});
 };
 
-export const postEdit = (req, res) => {
+export const postEdit = async(req, res) => {
     const {id} = req.params;
-    const {title} = req.body;
+    const video = await Video.exists({_id : id});
+    if(!video)
+        return res.render("404", {pageTitle : "404 Error"});
+    const {title, description, hashtags} = req.body;
+    await Video.findOneAndUpdate(id, {
+        title,
+        description,
+        hashtags : formatHashtags(hashtags),
+    });
     res.redirect(`/videos/${id}`);
 };
 
@@ -32,7 +46,7 @@ export const postUpload = async(req, res)=>{
         await Video.create({
             title,
             description,
-            hashtags : hashtags.split(",").map(word=>`#${word}`),
+            hashtags : formatHashtags(hashtags),
         });
         res.redirect("/");
     }catch(error){

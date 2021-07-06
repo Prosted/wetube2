@@ -1,7 +1,9 @@
 extends base
 
 block content 
-    a(href=`${video.id}/edit`) Edit Video &rarr;
-    h2 video name : #{video.title}
-    h3 #{video.views} #{video.views ===0 ? "view" : "views"}
+    a(href=`${video._id}/edit`) Edit Video &rarr;
+    h2 #{video.title}
+    h6 #{video.meta.views} #{video.meta.views <=1 ? "view" : "views"}
+    each word in video.hashtags
+        li #{word}
     

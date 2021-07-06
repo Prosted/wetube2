@@ -4,7 +4,6 @@ mixin video(video)
             a(href=`/videos/${video.id}`)=video.title
         p #{video.description} 
         small #{video.createdAt}
-        hr 
-        small #{video.hashtags} 
+        h6 #{video.hashtags} 
         h5 #{video.meta.rating} / 5 
         h5 #{video.meta.views} #{video.meta.views == 0 ? "view" : "views"} 

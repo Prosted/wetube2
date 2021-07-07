@@ -2,9 +2,17 @@ import Video, { formatHashtags } from "../models/Video";
     
 //global Router
 export const home = async(req, res) => {
-    const videos = await Video.find({});
+    const videos = await Video.find({}).sort({createdAt:"desc"});
     return res.render("home", {pageTitle : "Home", videos});
 }; 
+export const search = async(req, res) => {
+    const {keyword} = req.query;
+    let videos=[];
+    if(keyword){
+        videos = await Video.find({title : {$regex : new RegExp(`${keyword}`, "i")}}); 
+    }
+    res.render("search", {pageTitle:"search", videos});
+} 
 
 //video Router
 export const watch = async(req, res) => {
@@ -54,3 +62,9 @@ export const postUpload = async(req, res)=>{
         res.render("upload", {pageTitle : "Upload", errorMessage : error._message});
     }
 }   
+
+export const deleteVideo = async(req, res) => {
+    const {id} = req.params;
+    await Video.findByIdAndDelete(id);
+    res.redirect("/");
+}

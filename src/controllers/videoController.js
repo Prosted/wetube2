@@ -19,14 +19,14 @@ export const watch = async(req, res) => {
     const {id} = req.params;
     const video = await Video.findById({_id : id});
     if(!video)
-        return res.render("404", {pageTitle : "404 Error"});
+        return res.status(400).render("error", {pageTitle : "Server Error"});
     res.render("watch", {pageTitle : "watch", video});
 };
 export const getEdit = async(req, res) => {
     const {id} = req.params;
     const video = await Video.findById({_id : id});
     if(!video)
-        return res.render("404", {pageTitle : "404 Error"});
+        return res.status(400).render("error", {pageTitle : "Server Error"});
     res.render("edit", {pageTitle : "Edit", video});
 };
 
@@ -34,7 +34,7 @@ export const postEdit = async(req, res) => {
     const {id} = req.params;
     const video = await Video.exists({_id : id});
     if(!video)
-        return res.render("404", {pageTitle : "404 Error"});
+        return res.status(400).render("error", {pageTitle : "Server Error"});
     const {title, description, hashtags} = req.body;
     await Video.findOneAndUpdate(id, {
         title,

@@ -12,12 +12,16 @@ html
                     a(href="/") Home 
                 li 
                     a(href="/search") Search
-                li 
-                    a(href="/login") Login
-                li
-                    a(href="/join") Join
-                li 
-                    a(href="/login") Login
+                if !loggedIn
+                    li 
+                        a(href="/login") Login
+                    li
+                        a(href="/join") Join
+                else
+                    li 
+                        a(href="/logout") Logout
+                    li 
+                        a(href="/profile") profile #{user.userName}
             h1=pageTitle
             block content
         include partials/footer

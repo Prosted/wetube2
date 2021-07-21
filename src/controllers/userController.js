@@ -55,3 +55,34 @@ export const logout = (req, res) => res.send("Logout");
 export const edit = (req, res) => res.send("Edit User's Profile");
 export const remove = (req, res) => res.send("Remove User");
 export const see = (req, res) => res.send("Profile");
+
+export const startGithubLogin = (req, res) => {
+    const baseUrl = "https://github.com/login/oauth/authorize";
+    const config = {
+        client_id : process.env.GH_CLIENTID,
+        allow_signup: false,
+        scope : "read:user user:email",
+    }
+    const configUrl = new URLSearchParams(config).toString(); 
+    const finalUrl = `${baseUrl}?${configUrl}`;
+    return res.redirect(finalUrl);
+}
+
+export const finishGithubLogin = (req, res) => {
+    const baseUrl = "https://github.com/login/oauth/access_token";
+    const config = {
+        client_id : process.env.GH_CLIENTID,
+        client_secret : process.env.GH_CLIENT_SCRET,
+        code : req.query.code,
+    }
+    const configUrl = new URLSearchParams(config).toString(); 
+    const finalUrl = `${baseUrl}?${configUrl}`;
+    const data = await fetch(finalUrl, {
+        method:"POST",
+        headers:{
+            Accept : "application/json",
+        },
+    });
+    const json = await data.json();
+    return res.redirect(finalUrl);
+}

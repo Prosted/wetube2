@@ -1,5 +1,6 @@
 import express, { urlencoded } from "express";
 import session from "express-session";
+import MongoStore from "connect-mongo";
 import morgan from "morgan";
 import { localMiddleware } from "./middlewares";
 import rootRouter from "./routers/rootRouter";
@@ -16,9 +17,10 @@ app.set("view engine", "pug");
 app.use(urlencoded({extended:true}));
 
 app.use(session({
-    secret : "keyboard cat",
-    resave : true,
-    saveUninitialized : true,
+    secret : process.env.COOKIE_SECRET,
+    resave : false,
+    saveUninitialized : false,
+    store: MongoStore.create({ mongoUrl: process.env.DB_URL }),
 }))
 
 // app.use((req, res, next)=>{

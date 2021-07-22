@@ -20,7 +20,9 @@ html
                 else
                     li 
                         a(href="/logout") Logout
-                    li 
+                    
+                    li
+                        img(src=user.avatarUrl alt="") 
                         a(href="/profile") profile #{user.userName}
             h1=pageTitle
             block content

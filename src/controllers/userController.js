@@ -1,5 +1,6 @@
 import User from "../models/User";
 import bcrypt from "bcrypt";
+import fetch from "node-fetch";
 
 //root Router
 export const getJoin = (req, res) => {
@@ -36,7 +37,7 @@ export const getLogin = (req, res) => {
 
 export const postLogin = async (req, res) => {
     const {email, password} = req.body;
-    const user = await User.findOne({email});
+    const user = await User.findOne({email, socialOnly : false});
     if(!user){
         return res.status(400).render("login", {pageTitle:"login", errorMessage : "wrong email"});
     }
@@ -49,7 +50,10 @@ export const postLogin = async (req, res) => {
     return res.redirect("/");
 }
 
-export const logout = (req, res) => res.send("Logout");
+export const logout = (req, res) => {
+    req.session.destroy();
+    res.redirect("/");
+}
 
 //user Router
 export const edit = (req, res) => res.send("Edit User's Profile");
@@ -68,21 +72,57 @@ export const startGithubLogin = (req, res) => {
     return res.redirect(finalUrl);
 }
 
-export const finishGithubLogin = (req, res) => {
+export const finishGithubLogin = async (req, res) => {
     const baseUrl = "https://github.com/login/oauth/access_token";
     const config = {
         client_id : process.env.GH_CLIENTID,
-        client_secret : process.env.GH_CLIENT_SCRET,
+        client_secret : process.env.GH_CLIENT_SECRET,
         code : req.query.code,
     }
     const configUrl = new URLSearchParams(config).toString(); 
     const finalUrl = `${baseUrl}?${configUrl}`;
-    const data = await fetch(finalUrl, {
+    const tokenRequest = await(await fetch(finalUrl, {
         method:"POST",
         headers:{
             Accept : "application/json",
         },
-    });
-    const json = await data.json();
-    return res.redirect(finalUrl);
+    })).json();
+    if("access_token" in tokenRequest){
+        const {access_token} = tokenRequest;
+        const apiUrl = "http://api.github.com"
+        const userData = await(
+            await fetch(`${apiUrl}/user`,{
+                headers:{
+                    Authorization : `token ${access_token}`,
+                },
+            })
+        ).json();
+        const emailData = await(await fetch(`${apiUrl}/user/emails`,{
+            headers:{
+                Authorization : `token ${access_token}`,
+            },
+        })
+    ).json();
+    const emailObj = emailData.find((email)=>email.primary === true && email.verified === true);
+    if(!emailObj){
+        return res.redirect("/login");
+    }
+    let user = await User.findOne({email : emailObj.email});
+    if(!user){
+        user = await User.create({
+            name : userData.name,
+            email : emailObj.email,
+            avatarUrl : userData.avatar_url,
+            userName : userData.name,
+            password : "",
+            location : userData.location,
+            socialOnly:true,
+        });
+    }
+    req.session.loggedIn = true;
+    req.session.user=user;
+    return res.redirect("/");
+    }else{
+        return res.redirect("/login");
+    }
 }

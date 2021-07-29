@@ -6,8 +6,6 @@ html
     body 
         main 
             ul
-                li 
-                    a(href="/videos/upload") Video Upload
                 li
                     a(href="/") Home 
                 li 
@@ -20,10 +18,13 @@ html
                 else
                     li 
                         a(href="/logout") Logout
-                    
                     li
-                        img(src=user.avatarUrl alt="") 
-                        a(href="/profile") profile #{user.userName}
+                        img(src=loggedInUser.avatarUrl alt="") 
+                        a(href="/profile") profile #{loggedInUser.userName}
+                    li 
+                        a(href="/users/edit") Edit Profile
+                    li 
+                        a(href="/videos/upload") Video Upload
             h1=pageTitle
             block content
         include partials/footer

@@ -56,9 +56,47 @@ export const logout = (req, res) => {
 }
 
 //user Router
-export const edit = (req, res) => res.send("Edit User's Profile");
+export const getEdit = (req, res) => {
+    return res.render("edit-profile", {pageTitle:"Edit Profile"});
+}
+
+export const postEdit = async (req, res) => {
+    const {
+        session : {
+            user:{_id, email : sessionEmail, userName:sessionUserName},
+        },
+        body : {name, userName, location, email},
+    } =req;
+    let search =[];
+    if(sessionEmail!==email){
+        search.push({email});
+    }
+    if(sessionUserName!==userName){
+        search.push({userName});
+    }
+    if(search.length>0){
+        const existsUser = await User.findOne({$or : search});
+        if(existsUser && existsUser._id.toString() !== _id){
+            return res.status(400).render("edit-profile", {pageTitle:"Edit Profile", errorMessage:"This Email or User Name is already taken"});
+        }
+    }
+    const user = await User.findByIdAndUpdate(_id, {
+        email,
+        name,
+        userName,
+        location,
+    }, {new : true});
+    req.session.user = user; 
+    return res.redirect("/users/edit");
+}
+
+
 export const remove = (req, res) => res.send("Remove User");
 export const see = (req, res) => res.send("Profile");
+
+
+
+
 
 export const startGithubLogin = (req, res) => {
     const baseUrl = "https://github.com/login/oauth/authorize";

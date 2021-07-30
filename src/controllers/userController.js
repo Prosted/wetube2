@@ -63,9 +63,10 @@ export const getEdit = (req, res) => {
 export const postEdit = async (req, res) => {
     const {
         session : {
-            user:{_id, email : sessionEmail, userName:sessionUserName},
+            user:{_id, email : sessionEmail, userName:sessionUserName, avatarUrl},
         },
         body : {name, userName, location, email},
+        file,
     } =req;
     let search =[];
     if(sessionEmail!==email){
@@ -81,6 +82,7 @@ export const postEdit = async (req, res) => {
         }
     }
     const user = await User.findByIdAndUpdate(_id, {
+        avatarUrl:file ? file.path : avatarUrl,
         email,
         name,
         userName,
@@ -89,14 +91,6 @@ export const postEdit = async (req, res) => {
     req.session.user = user; 
     return res.redirect("/users/edit");
 }
-
-
-export const remove = (req, res) => res.send("Remove User");
-export const see = (req, res) => res.send("Profile");
-
-
-
-
 
 export const startGithubLogin = (req, res) => {
     const baseUrl = "https://github.com/login/oauth/authorize";
@@ -164,3 +158,32 @@ export const finishGithubLogin = async (req, res) => {
         return res.redirect("/login");
     }
 }
+
+export const getChangePassword = (req, res) => {
+    return res.render("change-password", {pageTitle:"Change Password"});
+}
+
+export const postChangePassword = async(req, res) => {
+    const {
+        session : {
+            user : {_id},
+        },
+        body:{oldPassword, newPassword, newPasswordConfirm},
+    }=req;
+    const user = await User.findById(_id);
+    const oldPasswordCheck = await bcrypt.compare(oldPassword, user.password);
+    if(!oldPasswordCheck){
+        return res.status(400).render("change-password", {pageTitle:"Change Password", errorMessage:"incorrect Password"});
+    }
+    if(newPassword !== newPasswordConfirm){
+        return res.status(400).render("change-password", {pageTitle:"Change Password", errorMessage:"The new password does not match to confirm"});
+    }
+    user.password = newPassword;
+    req.session.user = user;
+    await user.save();
+    return res.redirect("/users/edit");
+}
+
+
+export const remove = (req, res) => res.send("Remove User");
+export const see = (req, res) => res.send("Profile");

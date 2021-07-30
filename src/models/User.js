@@ -8,7 +8,7 @@ const userSchema = new mongoose.Schema({
     password : {type:String },
     location:String,
     avatarUrl : {type : String},
-    socialOnly : {type : Boolean},
+    socialOnly : {type : Boolean, default:false},
 });
 
 

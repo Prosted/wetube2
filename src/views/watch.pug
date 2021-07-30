@@ -6,7 +6,9 @@ block content
             a(href=`${video._id}/edit`) Edit Video &rarr;
         li 
             a(href=`${video._id}/delete`) Delete Video &rarr;  
+    video(src=`/${video.fileUrl}` controls) 
     h2 #{video.title}
+    h3 #{video.description}
     h6 #{video.meta.views} #{video.meta.views <=1 ? "view" : "views"}
     each word in video.hashtags
         li #{word}

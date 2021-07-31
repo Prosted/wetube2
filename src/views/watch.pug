@@ -1,14 +1,16 @@
 extends base
 
-block content 
-    ul 
-        li
-            a(href=`${video._id}/edit`) Edit Video &rarr;
-        li 
-            a(href=`${video._id}/delete`) Delete Video &rarr;  
-    video(src=`/${video.fileUrl}` controls) 
+block content
+    if String(video.owner._id) === String(loggedInUser._id) 
+        ul 
+            li
+                a(href=`${video._id}/edit`) Edit Video &rarr;
+            li 
+                a(href=`${video._id}/delete`) Delete Video &rarr;  
+    video(src=`/${video.fileUrl}` controls)
     h2 #{video.title}
     h3 #{video.description}
+    a(href=`/users/${video.owner._id}`) Uploaded by #{video.owner.userName} 
     h6 #{video.meta.views} #{video.meta.views <=1 ? "view" : "views"}
     each word in video.hashtags
         li #{word}
